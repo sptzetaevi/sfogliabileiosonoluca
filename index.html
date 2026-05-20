@@ -33,8 +33,28 @@
     button.ctrl:disabled{opacity:.35; cursor:not-allowed;}
     .counter{min-width:72px; text-align:center; font-weight:800; font-size:14px; opacity:.75;}
     .last-link{position:absolute; left:50%; bottom:8.5%; transform:translateX(-50%); z-index:30; font-size:clamp(14px, 2.5vmin, 22px); padding:clamp(9px, 1.8vmin, 16px) clamp(18px, 3vmin, 30px); background:rgba(255,255,255,.93);}
-    .comm-link{position:absolute;left:50%;bottom:6%;transform:translateX(-50%);z-index:40;background:rgba(255,255,255,.94);padding:12px 22px;border-radius:999px;text-decoration:none;color:#111;font-weight:800;box-shadow:0 4px 12px rgba(0,0,0,.16);}
     .open-last{position:absolute; inset:0; z-index:20; display:block; font-size:0;}
+
+    .communication-fixed{
+      position:fixed;
+      left:50%;
+      bottom:calc(76px + env(safe-area-inset-bottom));
+      transform:translateX(-50%);
+      z-index:99999;
+      background:#fff;
+      color:#111;
+      text-decoration:none;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      font-weight:900;
+      font-size:clamp(14px, 2.5vmin, 20px);
+      padding:12px 22px;
+      border-radius:999px;
+      box-shadow:0 8px 24px rgba(0,0,0,.22);
+      border:2px solid rgba(0,0,0,.12);
+      pointer-events:auto;
+    }
+    .communication-fixed[hidden]{display:none;}
+
     .hint{position:fixed; top:calc(12px + env(safe-area-inset-top)); left:50%; transform:translateX(-50%); z-index:500; background:rgba(255,255,255,.74); backdrop-filter:blur(10px); padding:8px 14px; border-radius:999px; font-weight:800; font-size:13px; box-shadow:0 5px 18px rgba(0,0,0,.12); opacity:.84;}
     @media (max-width:720px){:root{--page-size:min(94vw, 82vh)} body{padding:8px}.controls{gap:6px; padding:7px}button.ctrl{padding:9px 12px;font-size:14px}.hint{display:none}.book-wrap{width:var(--page-size); filter:drop-shadow(0 18px 24px rgba(0,0,0,.25))}.book{left:0}.sheet,.face{border-radius:12px}}
     @media (prefers-reduced-motion: reduce){.sheet{transition:transform 1ms linear}}
@@ -48,6 +68,9 @@
       <button class="click-zone left" id="prevZone" aria-label="Pagina precedente"></button>
       <button class="click-zone right" id="nextZone" aria-label="Pagina successiva"></button>
     </div>
+
+    <a id="communicationBtn" class="communication-fixed" href="#" target="_blank" rel="noopener noreferrer" hidden>Prova a comunicare</a>
+
     <div class="controls">
       <button class="ctrl" id="prevBtn" type="button">←</button>
       <span class="counter" id="counter">1 / 20</span>
@@ -57,6 +80,15 @@
   </main>
 
   <script>
+
+    const communicationLinks = {
+      13: 'https://sptzetaevi.github.io/iosonolucacosavoglio/',
+      14: 'https://sptzetaevi.github.io/iosonolucasentirsi/',
+      18: 'https://sptzetaevi.github.io/iosonolucaapp2/',
+      19: 'https://sptzetaevi.github.io/iosonolucaapp2/'
+    };
+    const communicationBtn = document.getElementById('communicationBtn');
+
     const pages = Array.from({length:20}, (_,i)=>`assets/page_${String(i+1).padStart(2,'0')}.png`);
     const book = document.getElementById('book');
     const counter = document.getElementById('counter');
@@ -69,14 +101,6 @@
     let index = 0;
     let soundOn = true;
     let busy = false;
-
-
-    const communicationLinks = {
-      13: 'https://sptzetaevi.github.io/iosonolucacosavoglio/',
-      14: 'https://sptzetaevi.github.io/iosonolucasentirsi/',
-      18: 'https://sptzetaevi.github.io/iosonolucaapp2/',
-      19: 'https://sptzetaevi.github.io/iosonolucaapp2/'
-    };
 
     function makeFace(className, src, pageNumber){
       const face = document.createElement('div');
@@ -101,17 +125,6 @@
         btn.textContent = 'APRI';
         face.appendChild(btn);
       }
-
-      if(communicationLinks[pageNumber]){
-        const comm = document.createElement('a');
-        comm.className = 'comm-link';
-        comm.href = communicationLinks[pageNumber];
-        comm.target = '_blank';
-        comm.rel = 'noopener noreferrer';
-        comm.textContent = 'Prova a comunicare';
-        face.appendChild(comm);
-      }
-
       return face;
     }
 
@@ -166,6 +179,16 @@
       nextBtn.disabled = index >= pages.length - 1;
       prevZone.disabled = prevBtn.disabled;
       nextZone.disabled = nextBtn.disabled;
+
+      const currentPage = Math.min(index + 1, pages.length);
+      if(communicationLinks[currentPage]){
+        communicationBtn.href = communicationLinks[currentPage];
+        communicationBtn.hidden = false;
+      } else {
+        communicationBtn.hidden = true;
+        communicationBtn.removeAttribute('href');
+      }
+
       pageSound(direction);
     }
 
@@ -203,5 +226,7 @@
 
     render(0);
   </script>
+
+
 </body>
 </html>
